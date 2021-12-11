@@ -120,9 +120,9 @@ class CMA(object):
         self.callback_fn = callback_function
         self.dtype = dtype
         self.termination_criterion_met = False
-        self.fitness = None
-        self.best_solution = None
-        self.best_fitness = None
+        self.fitness = tf.Variable(tf.constant(np.inf, dtype=self.dtype))
+        self.best_solution = initial_solution
+        self.best_fitness = np.inf
 
         self._initialized = False
 
@@ -332,15 +332,15 @@ class CMA(object):
             self.B.assign(B)
             self.D.assign(D)
             self.m.assign(m)
-            self.fitness.assign(self.best_fitness())
+            self.fitness.assign(self.fitness_fn(tf.stack([self.m])))
             
             
             if self.generation == 0:
-                self.best_fitness.assign(self.fitness)
-                self.best_solution.assign(self.m)
-            elif self.fitness < self.best_fitness:
-                self.best_fitness.assign(self.fitness)
-                self.best_solution.assign(self.m)
+                self.best_fitness = (self.fitness.read_value().numpy())
+                self.best_solution = self.m.read_value().numpy()
+            elif self.fitness.read_value().numpy() < self.best_fitness:
+                self.best_fitness = (self.fitness.read_value().numpy())
+                self.best_solution = self.m.read_value().numpy()
         
 
             # ---------------------------------
