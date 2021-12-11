@@ -68,7 +68,7 @@ class CMA(object):
           termination_no_effect
             Set the threshold for NoEffectAxis and NoEffectCoord termination criteria.
             Decreasing this value can increase the number of significant decimals of the solution.
-            Defaults to 1e-8.
+            Defaults to 1e-8. Set to False to disable axis and position based termination.
 
           store_trace
             If True, core variables are stored in memory (attribute self.trace) at each generation.
@@ -351,17 +351,18 @@ class CMA(object):
         return self.fitness_fn(tf.stack([self.m])).numpy()[0]
 
     def should_terminate(self, return_details=False):
-        # NoEffectAxis: stop if adding a 0.1-standard deviation vector in any principal axis
-        # direction of C does not change m
-        i = self.generation % self.dimension
-        m_nea = self.m + 0.1 * self.σ * tf.squeeze(self._diag_D[i] * self.B[i,:])
-        m_nea_diff = tf.abs(self.m - m_nea)
-        no_effect_axis = tf.reduce_all(tf.less(m_nea_diff, self.termination_no_effect))
+        if self.termination_no_effect:
+            # NoEffectAxis: stop if adding a 0.1-standard deviation vector in any principal axis
+            # direction of C does not change m
+            i = self.generation % self.dimension
+            m_nea = self.m + 0.1 * self.σ * tf.squeeze(self._diag_D[i] * self.B[i,:])
+            m_nea_diff = tf.abs(self.m - m_nea)
+            no_effect_axis = tf.reduce_all(tf.less(m_nea_diff, self.termination_no_effect))
 
-        # NoEffectCoord: stop if adding 0.2 stdev in any single coordinate does not change m
-        m_nec = self.m + 0.2 * self.σ * tf.linalg.diag_part(self.C)
-        m_nec_diff = tf.abs(self.m - m_nec)
-        no_effect_coord = tf.reduce_any(tf.less(m_nec_diff, self.termination_no_effect))
+            # NoEffectCoord: stop if adding 0.2 stdev in any single coordinate does not change m
+            m_nec = self.m + 0.2 * self.σ * tf.linalg.diag_part(self.C)
+            m_nec_diff = tf.abs(self.m - m_nec)
+            no_effect_coord = tf.reduce_any(tf.less(m_nec_diff, self.termination_no_effect))
 
         # ConditionCov: stop if the condition number of the covariance matrix becomes too large
         max_D = tf.reduce_max(self._diag_D)
