@@ -338,7 +338,7 @@ class CMA(object):
             if self.generation == 0:
                 self.bfitness = (self.fitness.read_value().numpy())
                 self.bsolution = self.m.read_value().numpy()
-            elif self.fitness.read_value().numpy() < self.best_fitness:
+            elif self.fitness.read_value().numpy() < self.bfitness:
                 self.bfitness = (self.fitness.read_value().numpy())
                 self.bsolution = self.m.read_value().numpy()
         
