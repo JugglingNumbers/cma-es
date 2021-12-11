@@ -388,8 +388,11 @@ class CMA(object):
         prev_max_D = tf.reduce_max(tf.linalg.diag_part(self._prev_D))
         tol_x_up_diff = tf.abs(self.σ * max_D - self._prev_sigma * prev_max_D)
         tol_x_up = tf.greater(tol_x_up_diff, 1e4)
-
-        do_terminate = no_effect_axis or no_effect_coord or condition_cov or tol_x_up
+        
+        if self.termination_no_effect:
+            do_terminate = no_effect_axis or no_effect_coord or condition_cov or tol_x_up
+        else:
+            do_terminate = condition_cov or tol_x_up
 
         if not return_details:
             return do_terminate
