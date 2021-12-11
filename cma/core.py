@@ -121,8 +121,8 @@ class CMA(object):
         self.dtype = dtype
         self.termination_criterion_met = False
         self.fitness = tf.Variable(tf.constant(np.inf, dtype=self.dtype))
-        self.bsolution = initial_solution
-        self.bfitness = np.inf
+        self.bsolution = tf.Variable(tf.constant(self.initial_solution, dtype=self.dtype))
+        self.bfitness = tf.Variable(tf.constant(np.inf, dtype=self.dtype))
 
         self._initialized = False
 
@@ -335,12 +335,9 @@ class CMA(object):
             self.fitness.assign(self.fitness_fn(tf.stack([self.m]))[0])
             
             
-            if self.generation == 0:
-                self.bfitness = (self.fitness.read_value().numpy())
-                self.bsolution = self.m.read_value().numpy()
-            elif self.fitness.read_value().numpy() < self.bfitness:
-                self.bfitness = (self.fitness.read_value().numpy())
-                self.bsolution = self.m.read_value().numpy()
+            if (self.fitness < self.bfitness):
+                self.bfitness.assign(self.fitness)
+                self.bsolution.assign(m)
         
 
             # ---------------------------------
