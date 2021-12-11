@@ -120,6 +120,9 @@ class CMA(object):
         self.callback_fn = callback_function
         self.dtype = dtype
         self.termination_criterion_met = False
+        self.fitness = None
+        self.best_solution = None
+        self.best_fitness = None
 
         self._initialized = False
 
@@ -329,6 +332,16 @@ class CMA(object):
             self.B.assign(B)
             self.D.assign(D)
             self.m.assign(m)
+            self.fitness.assign(self.best_fitness())
+            
+            
+            if self.generation == 0:
+                self.best_fitness.assign(self.fitness)
+                self.best_solution.assign(self.m)
+            elif self.fitness < self.best_fitness:
+                self.best_fitness.assign(self.fitness)
+                self.best_solution.assign(self.m)
+        
 
             # ---------------------------------
             # (7) Terminate early if necessary
@@ -405,4 +418,5 @@ class CMA(object):
             'B': self.B.read_value().numpy(),
             'D': self.D.read_value().numpy(),
             'population': self.x_sorted.numpy(),
+            'fitness': self.fitness.read_value().numpy(),
         })
