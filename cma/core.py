@@ -332,7 +332,7 @@ class CMA(object):
             self.B.assign(B)
             self.D.assign(D)
             self.m.assign(m)
-            self.fitness.assign(self.fitness_fn(tf.stack([self.m])))
+            self.fitness.assign(self.fitness_fn(tf.stack([self.m]))[0])
             
             
             if self.generation == 0:
