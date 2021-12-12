@@ -335,7 +335,7 @@ class CMA(object):
             self.fitness.assign(self.fitness_fn(tf.stack([self.m]))[0])
             
             
-            if (self.fitness < self.bfitness):
+            if tf.less(self.fitness, self.bfitness):
                 self.bfitness.assign(self.fitness)
                 self.bsolution.assign(m)
         
